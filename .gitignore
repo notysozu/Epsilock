@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+
+# Node.js
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment secrets
+.env
+.env.local
+.env.*.local
+
+# EPSILOCK Phase 1 local env/certs
+/epsilock-phase1/.env
+/epsilock-phase1/certs/*.pem
+/epsilock-phase1/certs/*.key
+
+# Runtime/temp data
+/tmp/
+*.tmp
+*.pid
+coverage/
