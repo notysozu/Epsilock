@@ -20,6 +20,8 @@ pnpm-debug.log*
 /epsilock-phase1/.env
 /epsilock-phase1/certs/*.pem
 /epsilock-phase1/certs/*.key
+/epsilock-phase1/certs/*.crt
+/epsilock-phase1/certs/*.srl
 
 # Runtime/temp data
 /tmp/

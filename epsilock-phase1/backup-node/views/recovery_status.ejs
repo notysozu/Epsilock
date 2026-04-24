@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backup Recovery Status</title>
+</head>
+<body>
+  <h1>Backup Recovery Status</h1>
+  <p>Recovery ID: <%= status.recoveryId %></p>
+  <p>Incident ID: <%= status.incidentId %></p>
+  <p>Old Room: <%= status.oldRoomId %></p>
+  <p>New Room: <%= status.newRoomId || '-' %></p>
+  <p>Status: <%= status.status %></p>
+  <p>Expires: <%= new Date(status.expiresAt).toLocaleString() %></p>
+</body>
+</html>

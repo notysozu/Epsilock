@@ -1,0 +1,41 @@
+<div class="panel-card">
+  <div class="panel-header">
+    <h3>File Transfer</h3>
+  </div>
+  
+  <div class="drag-drop-zone">
+    <i class="fa-solid fa-cloud-arrow-up fa-3x"></i>
+    <p>Drag and drop encrypted payload here</p>
+    <button class="btn secondary-btn" disabled>Browse Files</button>
+  </div>
+
+  <table class="data-table mt-4">
+    <thead>
+      <tr>
+        <th>Filename</th>
+        <th>Size</th>
+        <th>Status</th>
+        <th>Integrity Hash</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% transferFiles.forEach(file => { %>
+        <tr>
+          <td><i class="fa-solid fa-file-shield text-blue"></i> <%= file.name %></td>
+          <td><%= file.size %></td>
+          <td>
+            <% if(file.status === 'Verified') { %>
+              <span class="badge bg-green"><i class="fa-solid fa-check"></i> Verified</span>
+            <% } else if(file.status === 'Transferring') { %>
+              <span class="badge bg-blue"><i class="fa-solid fa-arrow-rotate-right fa-spin"></i> <%= file.progress %>%</span>
+              <div class="progress-bar-bg mt-1"><div class="progress-bar" style="width: <%= file.progress %>%"></div></div>
+            <% } else { %>
+              <span class="badge bg-amber"><i class="fa-regular fa-clock"></i> Pending</span>
+            <% } %>
+          </td>
+          <td class="mono-text"><%= file.hash %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>

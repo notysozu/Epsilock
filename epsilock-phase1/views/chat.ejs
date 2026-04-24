@@ -1,0 +1,22 @@
+<%- include('partials/header') %>
+<%- include('partials/sidebar') %>
+
+<main class="main-content">
+  <div class="tab-content active">
+    <%- include('user/chat') %>
+  </div>
+</main>
+
+<script>
+  window.currentUserContext = {
+    name: "<%= user.name %>",
+    role: "<%= user.role %>"
+  };
+  window.EPSI_CHAT = {
+    roomId: '<%= room.roomId %>',
+    maxFileBytes: <%= maxFileBytes %>,
+    roomFrozen: <%= room.frozen ? 'true' : 'false' %>
+  };
+</script>
+<script src="/public/chat.js"></script>
+<%- include('partials/footer') %>

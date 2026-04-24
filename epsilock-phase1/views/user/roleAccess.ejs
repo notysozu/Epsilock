@@ -1,0 +1,34 @@
+<div class="panel-card">
+  <div class="panel-header">
+    <h3>Role Access Matrix</h3>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Role</th>
+        <th class="center">Chat</th>
+        <th class="center">File Transfer</th>
+        <th class="center">Cert View</th>
+        <th class="center">User Mgmt</th>
+        <th class="center">Breach Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% Object.keys(roles).forEach(r => { %>
+        <tr class="<%= user.role === r ? 'highlight-row' : '' %>">
+          <td><strong><%= r %></strong></td>
+          <td class="center"><%- roles[r].chat ? '<i class="fa-solid fa-check text-green"></i>' : '<i class="fa-solid fa-xmark text-red"></i>' %></td>
+          <td class="center"><%- roles[r].fileTransfer ? '<i class="fa-solid fa-check text-green"></i>' : '<i class="fa-solid fa-xmark text-red"></i>' %></td>
+          <td class="center"><%- roles[r].certView ? '<i class="fa-solid fa-check text-green"></i>' : '<i class="fa-solid fa-xmark text-red"></i>' %></td>
+          <td class="center"><%- roles[r].userMgmt ? '<i class="fa-solid fa-check text-green"></i>' : '<i class="fa-solid fa-xmark text-red"></i>' %></td>
+          <td class="center"><%- roles[r].breachDetails ? '<i class="fa-solid fa-check text-green"></i>' : '<i class="fa-solid fa-xmark text-red"></i>' %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <p class="mt-4 small text-gray">
+    Access is strictly enforced based on clearance level. The system utilizes role-based access control (RBAC) governed by the SecureComms platform policies. Higher tier roles inherit all access properties of the tiers beneath them.
+  </p>
+</div>

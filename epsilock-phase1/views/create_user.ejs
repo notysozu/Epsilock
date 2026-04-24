@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Users - EPSILOCK</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="admin-page">
+  <div class="admin-shell">
+    <header class="admin-page-header">
+      <div>
+        <h1>User Administration</h1>
+        <p>Create and control user access without exposing chat content.</p>
+      </div>
+      <div class="admin-page-actions">
+        <a class="btn secondary-btn" href="/admin">Back to Dashboard</a>
+        <a class="btn secondary-btn" href="/admin/rooms">Rooms</a>
+        <a class="btn secondary-btn" href="/admin/incidents">Incidents</a>
+      </div>
+    </header>
+
+    <% if (error) { %>
+      <div class="alert error"><%= error %></div>
+    <% } %>
+
+    <section class="panel-card">
+      <div class="panel-header">
+        <h3>Create User</h3>
+      </div>
+      <form method="post" action="/admin/users/create" class="inline-form-grid">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" name="username" required placeholder="new user">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" name="password" required minlength="8" placeholder="minimum 8 chars">
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select name="role">
+            <option value="user">User</option>
+          </select>
+        </div>
+        <div class="form-group form-btn-row">
+          <button class="btn primary-btn" type="submit">Create User</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel-card mt-2">
+      <div class="panel-header d-flex justify-between align-center">
+        <h3>Existing Users</h3>
+        <span class="text-gray"><%= users.length %> total</span>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Status</th>
+              <th>Security</th>
+              <th>Token State</th>
+              <th class="right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!users.length) { %>
+              <tr><td colspan="5" class="text-gray">No users found.</td></tr>
+            <% } %>
+            <% users.forEach((u) => { %>
+              <tr>
+                <td><%= u.name %></td>
+                <td>
+                  <% if (u.status === 'Active') { %>
+                    <span class="badge bg-green">Active</span>
+                  <% } else { %>
+                    <span class="badge bg-red">Suspended</span>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (u.requirePasswordReset) { %>
+                    <span class="badge bg-amber">Reset Required</span>
+                  <% } else { %>
+                    <span class="text-gray">OK</span>
+                  <% } %>
+                </td>
+                <td class="mono-text"><%= u.token %></td>
+                <td class="right">
+                  <% if (u.status === 'Active') { %>
+                    <form method="post" action="/admin/users/<%= u.id %>/block" class="inline-action-form">
+                      <button class="btn icon-btn" title="Block user" type="submit">Block</button>
+                    </form>
+                  <% } else { %>
+                    <form method="post" action="/admin/users/<%= u.id %>/unblock" class="inline-action-form">
+                      <button class="btn icon-btn" title="Unblock user" type="submit">Unblock</button>
+                    </form>
+                  <% } %>
+                  <form method="post" action="/admin/users/delete/<%= u.id %>" class="inline-action-form">
+                    <button class="btn icon-btn" title="Delete user" type="submit">Delete</button>
+                  </form>
+                  <form method="post" action="/admin/users/<%= u.id %>/disconnect" class="inline-action-form">
+                    <button class="btn icon-btn" title="Disconnect all sessions" type="submit">Disconnect</button>
+                  </form>
+                  <form method="post" action="/admin/users/<%= u.id %>/reset-password" class="inline-action-form">
+                    <input type="password" name="newPassword" required minlength="8" placeholder="new password" class="mini-input">
+                    <button class="btn icon-btn" title="Reset password and logout all devices" type="submit">Reset</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

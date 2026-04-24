@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Rooms - EPSILOCK</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="admin-page">
+  <div class="admin-shell">
+    <header class="admin-page-header">
+      <div>
+        <h1>Room Administration</h1>
+        <p>Create rooms, assign participants, and control freeze state.</p>
+      </div>
+      <div class="admin-page-actions">
+        <a class="btn secondary-btn" href="/admin">Back to Dashboard</a>
+        <a class="btn secondary-btn" href="/admin/users">Users</a>
+        <a class="btn secondary-btn" href="/admin/incidents">Incidents</a>
+      </div>
+    </header>
+
+    <% if (error) { %>
+      <div class="alert error"><%= error %></div>
+    <% } %>
+
+    <section class="panel-card">
+      <div class="panel-header">
+        <h3>Create Room</h3>
+      </div>
+      <form method="post" action="/admin/rooms/create" class="incident-filter-grid">
+        <input name="name" placeholder="Room name" required>
+        <button class="btn primary-btn" type="submit">Create Room</button>
+      </form>
+    </section>
+
+    <section class="admin-room-grid mt-2">
+      <% if (!rooms.length) { %>
+        <div class="panel-card"><p class="text-gray">No rooms available.</p></div>
+      <% } %>
+      <% rooms.forEach((room) => { %>
+        <article class="panel-card">
+          <div class="panel-header d-flex justify-between align-center">
+            <div>
+              <h3><%= room.name %></h3>
+              <p class="mono-text text-gray"><%= room.roomId %></p>
+            </div>
+            <div>
+              <% if (room.frozen) { %>
+                <span class="badge bg-red">Frozen</span>
+              <% } else { %>
+                <span class="badge bg-green">Active</span>
+              <% } %>
+            </div>
+          </div>
+
+          <div class="room-action-row">
+            <% if (room.frozen) { %>
+              <form method="post" action="/admin/rooms/<%= room.roomId %>/unfreeze">
+                <button class="btn secondary-btn" type="submit">Unfreeze Room</button>
+              </form>
+            <% } else { %>
+              <form method="post" action="/admin/rooms/<%= room.roomId %>/freeze">
+                <button class="btn danger-btn" type="submit">Freeze Room</button>
+              </form>
+            <% } %>
+          </div>
+
+          <div class="room-add-user">
+            <form method="post" action="/admin/rooms/<%= room.roomId %>/add-user" class="incident-filter-grid">
+              <select name="userId" required>
+                <option value="">Select user</option>
+                <% users.forEach((u) => { %>
+                  <option value="<%= u._id %>"><%= u.username %></option>
+                <% }) %>
+              </select>
+              <button class="btn primary-btn" type="submit">Add User</button>
+            </form>
+          </div>
+
+          <div class="mt-2">
+            <h4>Participants</h4>
+            <div class="room-participants">
+              <% const participants = users.filter((u) => room.participantUserIds && room.participantUserIds.map(String).includes(String(u._id))); %>
+              <% if (!participants.length) { %>
+                <p class="text-gray">No participants yet.</p>
+              <% } %>
+              <% participants.forEach((p) => { %>
+                <div class="participant-row">
+                  <span><%= p.username %></span>
+                  <form method="post" action="/admin/rooms/<%= room.roomId %>/remove-user">
+                    <input type="hidden" name="userId" value="<%= p._id %>">
+                    <button class="btn icon-btn" type="submit">Remove</button>
+                  </form>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </article>
+      <% }) %>
+    </section>
+  </div>
+</body>
+</html>

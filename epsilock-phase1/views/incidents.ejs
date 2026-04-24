@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Incidents - EPSILOCK</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="admin-page">
+  <div class="admin-shell">
+    <header class="admin-page-header">
+      <div>
+        <h1>Security Incidents</h1>
+        <p>Review metadata of suspicious activity. Message content is never stored.</p>
+      </div>
+      <div class="admin-page-actions">
+        <a class="btn secondary-btn" href="/admin">Back to Dashboard</a>
+        <a class="btn secondary-btn" href="/admin/users">Users</a>
+        <a class="btn secondary-btn" href="/admin/rooms">Rooms</a>
+      </div>
+    </header>
+
+    <section class="panel-card">
+      <div class="panel-header">
+        <h3>Filter Incidents</h3>
+      </div>
+      <form method="get" action="/admin/incidents" class="incident-filter-grid">
+        <input name="type" placeholder="incident type" value="<%= filter.type || '' %>">
+        <select name="severity">
+          <option value="">All severity</option>
+          <option value="low" <%= filter.severity === 'low' ? 'selected' : '' %>>low</option>
+          <option value="medium" <%= filter.severity === 'medium' ? 'selected' : '' %>>medium</option>
+          <option value="high" <%= filter.severity === 'high' ? 'selected' : '' %>>high</option>
+          <option value="critical" <%= filter.severity === 'critical' ? 'selected' : '' %>>critical</option>
+        </select>
+        <select name="status">
+          <option value="">All status</option>
+          <option value="open" <%= filter.status === 'open' ? 'selected' : '' %>>open</option>
+          <option value="reviewed" <%= filter.status === 'reviewed' ? 'selected' : '' %>>reviewed</option>
+          <option value="resolved" <%= filter.status === 'resolved' ? 'selected' : '' %>>resolved</option>
+        </select>
+        <button class="btn primary-btn" type="submit">Apply</button>
+      </form>
+    </section>
+
+    <section class="panel-card mt-2">
+      <div class="panel-header d-flex justify-between align-center">
+        <h3>Incident List</h3>
+        <span class="text-gray"><%= incidents.length %> records</span>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Incident</th>
+              <th>Type</th>
+              <th>Severity</th>
+              <th>Status</th>
+              <th>IP</th>
+              <th>Location</th>
+              <th>Room</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!incidents.length) { %>
+              <tr><td colspan="8" class="text-gray">No incidents found for this filter.</td></tr>
+            <% } %>
+            <% incidents.forEach((i) => { %>
+              <tr>
+                <td><a href="/admin/incidents/<%= i._id %>"><%= i.incidentId %></a></td>
+                <td><%= i.type %></td>
+                <td>
+                  <% if (i.severity === 'critical' || i.severity === 'high') { %>
+                    <span class="badge bg-red"><%= i.severity %></span>
+                  <% } else if (i.severity === 'medium') { %>
+                    <span class="badge bg-amber"><%= i.severity %></span>
+                  <% } else { %>
+                    <span class="badge bg-green"><%= i.severity %></span>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (i.status === 'resolved') { %>
+                    <span class="badge bg-green">resolved</span>
+                  <% } else if (i.status === 'reviewed') { %>
+                    <span class="badge bg-amber">reviewed</span>
+                  <% } else { %>
+                    <span class="badge bg-red">open</span>
+                  <% } %>
+                </td>
+                <td class="mono-text"><%= i.sourceIp || '-' %></td>
+                <td><%= [i?.sourceGeo?.city, i?.sourceGeo?.region, i?.sourceGeo?.country].filter(Boolean).join(', ') || '-' %></td>
+                <td><%= i.roomId || '-' %></td>
+                <td><%= new Date(i.createdAt).toLocaleString() %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+  <script src="/public/admin-security.js"></script>
+</body>
+</html>

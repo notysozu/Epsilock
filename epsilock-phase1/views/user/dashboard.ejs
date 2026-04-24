@@ -1,0 +1,32 @@
+<%- include('../partials/header') %>
+<%- include('../partials/sidebar') %>
+
+<main class="main-content">
+  <div id="chat-panel" class="tab-content active">
+    <%- include('./chat') %>
+  </div>
+  <div id="visualizer-panel" class="tab-content">
+    <%- include('./visualizer') %>
+  </div>
+  <div id="cert-panel" class="tab-content">
+    <%- include('./certStatus') %>
+  </div>
+  <div id="role-panel" class="tab-content">
+    <%- include('./roleAccess') %>
+  </div>
+</main>
+
+<script>
+  window.currentUserContext = {
+    name: "<%= user.name %>",
+    role: "<%= user.role %>"
+  };
+  window.EPSI_CHAT = {
+    roomId: "<%= activeRoomId || '' %>",
+    maxFileBytes: <%= maxFileBytes || 1048576 %>,
+    roomFrozen: false
+  };
+</script>
+<script src="/public/chat.js"></script>
+
+<%- include('../partials/footer') %>

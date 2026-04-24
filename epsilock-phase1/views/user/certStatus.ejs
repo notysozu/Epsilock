@@ -1,0 +1,35 @@
+<div class="panel-card">
+  <div class="panel-header">
+    <h3>TLS Certificate Status</h3>
+  </div>
+
+  <div class="cert-grid">
+    <div class="cert-details">
+      <div class="data-row"><span>Issuer:</span> <span id="cert-issuer" class="mono-text"><%= certificates.current.issuer %></span></div>
+      <div class="data-row"><span>Subject:</span> <span id="cert-subject" class="mono-text"><%= certificates.current.subject %></span></div>
+      <div class="data-row"><span>Valid From:</span> <span id="cert-valid" class="mono-text"><%= certificates.current.validFrom %></span></div>
+      <div class="data-row"><span>Expires:</span> <span id="cert-expires" class="mono-text"><%= certificates.current.expires %></span></div>
+      <div class="data-row"><span>Serial:</span> <span id="cert-serial" class="mono-text text-blue"><%= certificates.current.serial %></span></div>
+      <div class="data-row mt-2"><span>Status:</span> <span id="cert-status-badge" class="badge bg-green">Active</span></div>
+    </div>
+
+    <div class="cert-chain-visual">
+      <div class="chain-node">
+        <i class="fa-solid fa-building-shield"></i> Root CA
+      </div>
+      <div class="chain-arrow"><i class="fa-solid fa-arrow-down"></i></div>
+      <div class="chain-node">
+        <i class="fa-solid fa-shield-halved"></i> Intermediate CA
+      </div>
+      <div class="chain-arrow"><i class="fa-solid fa-arrow-down"></i></div>
+      <div class="chain-node active-leaf" id="leaf-node">
+        <i class="fa-solid fa-certificate"></i> Leaf Certificate
+      </div>
+    </div>
+  </div>
+
+  <div class="rotation-timer">
+    <i class="fa-regular fa-clock"></i> Next scheduled rotation in: <span id="countdown">89d 23h 47m</span>
+    <p class="small text-amber mt-1"><i class="fa-solid fa-bolt"></i> Rotation auto-triggered on any breach event</p>
+  </div>
+</div>

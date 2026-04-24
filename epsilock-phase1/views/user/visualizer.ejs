@@ -1,0 +1,40 @@
+<div class="panel-card" style="align-items: center; justify-content: center; background: radial-gradient(circle at center, var(--panel-bg) 0%, var(--bg-dark) 100%); border: none; box-shadow: none;">
+  <h3 style="align-self: flex-start; width: 100%; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px;">System Health Visualizer</h3>
+  <div class="visualizer-card">
+    
+    <!-- User Nodes -->
+    <div class="vis-node" id="vis-node-client">
+      <i class="fa-solid fa-mobile-screen"></i>
+      <h4>End Clients</h4>
+      <p>Secure Channels Active</p>
+    </div>
+
+    <div class="vis-line l1"></div>
+
+    <!-- Gateway -->
+    <div class="vis-node" id="vis-node-tls">
+      <i class="fa-solid fa-shield-halved"></i>
+      <h4>TLS Gateway</h4>
+      <p>v1.3 Engine</p>
+    </div>
+
+    <div class="vis-line l2"></div>
+
+    <!-- Processing -->
+    <div class="vis-node" id="vis-node-server">
+      <i class="fa-solid fa-server"></i>
+      <h4>Core Router</h4>
+      <p>Socket.io Cluster</p>
+    </div>
+
+    <div class="vis-line l3"></div>
+
+    <!-- Database -->
+    <div class="vis-node" id="vis-node-db">
+      <i class="fa-solid fa-database"></i>
+      <h4>Secure Vault</h4>
+      <p>Encrypted DB</p>
+    </div>
+
+  </div>
+</div>

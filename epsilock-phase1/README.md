@@ -1,136 +1,182 @@
-# EPSILOCK Phase 1
+# EPSILOCK Phase 3 (Single Main Node + Backup Recovery Node)
 
-Phase 1 implementation: secure connection with multi-node chat setup.
+EPSILOCK now includes:
+- Phase 1: secure single-node bidirectional room chat (`/ws`)
+- Phase 2: anomaly detection, room/session freeze, token revocation, incident logging
+- Phase 3: backup-assisted secure recovery and clean reconnection
 
-Scope included:
-- Main admin node server (`main-node`)
-- Sender and receiver user node servers from the same codebase (`user-node`)
-- JWT + secure cookies auth
-- Role-based access (`admin`, `user`)
-- WebSocket broker + real-time chat/file relay
-- Session metadata tracking only (no message persistence)
-- Temporary in-memory file transfer with expiry and one-time delivery
+## Architecture
 
-Out of scope for this phase:
-- Threat detection engine
-- Anomaly scoring enforcement
-- Backup/recovery orchestration
-- Hacker simulation
+### Main Node (port 4000)
+- Main app (admin + user dashboards)
+- Main websocket endpoint `/ws`
+- Incident detection and emergency freeze logic
+- Recovery orchestration with Backup Node
 
-Future hooks are added in code as TODO comments.
+### Backup Recovery Node (port 5000)
+- Handles recovery request verification
+- Issues short-lived single-use recovery tokens
+- Completes recovery by producing clean replacement room metadata
+- Stores recovery metadata only, no chat content
 
-## Architecture Summary
+No sender/receiver split nodes are used.
 
-1. Main Node (`:4000` by default)
-- Admin login/dashboard
-- User creation and node assignment (sender/receiver)
-- Node metadata + session metadata storage in MongoDB
-- Tracks active socket sessions via WS broker
-- Does not store chat message content
+## Phase 3 Goal
 
-2. Sender Node (`:4001` by default)
-- Same user dashboard template as receiver node
-- `NODE_TYPE=sender`
-- Bridges chat events to main node broker
+When a suspicious incident freezes a room/session, recovery creates a new clean session path:
+- old compromised room/session is not trusted
+- old chat history is not restored
+- users re-authenticate before joining recovered room
 
-3. Receiver Node (`:4002` by default)
-- Same user dashboard template as sender node
-- `NODE_TYPE=receiver`
-- Receives relayed events from main node broker
+## Security Rules Enforced
 
-## Data Models
+- HTTPS/WSS used for both nodes
+- Main→Backup requests are signed with HMAC (`BACKUP_NODE_SECRET`)
+- Backup verifies request signature and timestamp
+- Recovery tokens are short-lived and single-use (`jti` tracked)
+- Plain passwords are never stored
+- Credentials are never forwarded to backup node
+- Old JWT/session is never automatically trusted for recovered room
 
-- `User`: auth and node assignment
-- `NodeRecord`: node identity/status/ws endpoint metadata
-- `SessionLog`: room metadata only (`roomId`, participants, timestamps, status)
+## Why Credentials Are Never Shared
 
-Message bodies and files are never persisted in MongoDB.
+User password verification is done on Main Node only (against local bcrypt hash). The Backup Node only receives a signed assertion (`verifiedByMain`) and never receives raw credentials.
 
-## Security Notes
+## Why Old Sessions Are Not Reused
 
-- Passwords are hashed with bcrypt.
-- JWT access tokens are short-lived (`ACCESS_TOKEN_TTL`, default `10m`).
-- Cookies are `HttpOnly`, `SameSite=Strict`, `Secure`.
-- WS connections validate JWT before socket access.
-- TLS certs are configurable by env path.
-- TLS 1.3 + ECC usage is documented in `scripts/generateCerts.md`.
+Suspicious sessions/tokens are revoked and frozen. Recovery creates a clean room with a new security context. This reduces chance of session fixation or replay from compromised state.
+
+## Why Users Must Re-authenticate
+
+Recovery requires identity re-verification because incident context is untrusted. Re-auth creates confidence that new session belongs to legitimate user.
+
+## Data Models Added/Updated
+
+### New
+- `RecoveryRequest`
+- `RecoveryToken`
+
+### Updated
+- `Room`
+  - `replacedByRoomId`
+  - `recoveredFromRoomId`
+  - `recoveryStatus`
+- `Incident`
+  - `recoveryId`
+  - `recoveryStatus`
+  - `resolvedByRecovery`
+
+## Project Additions
+
+- `backup-node/server.js`
+- `backup-node/routes/recovery.js`
+- `backup-node/services/recoveryService.js`
+- `backup-node/services/signatureVerifier.js`
+- `backup-node/services/tokenService.js`
+- `services/requestSigner.js`
+- `services/backupClient.js`
+- `services/recoveryManager.js`
+- `routes/recovery.js`
+- `views/recovery.ejs`
+- `views/recovery_status.ejs`
+
+## Main Recovery Routes
+
+- `POST /admin/incidents/:incidentId/start-recovery`
+- `GET /recovery/:recoveryId`
+- `POST /recovery/:recoveryId/verify`
+- `POST /recovery/:recoveryId/complete`
+- `POST /recovery/:recoveryId/join-new-room`
+- `GET /admin/recovery/:recoveryId/status`
+
+## Backup Recovery Routes
+
+- `POST /backup/recovery/request`
+- `GET /backup/recovery/:recoveryId/status`
+- `POST /backup/recovery/:recoveryId/verify-user`
+- `POST /backup/recovery/:recoveryId/complete`
+
+## WebSocket Recovery Events
+
+- `RECOVERY_STARTED`
+- `RECOVERY_REQUIRED`
+- `RECOVERY_VERIFIED`
+- `RECOVERY_COMPLETED`
+- `RECOVERY_FAILED`
+- `JOIN_RECOVERED_ROOM`
 
 ## Setup
 
-1. Install dependencies
+1. Install deps
 ```bash
 cd epsilock-phase1
 npm install
 ```
 
-2. Create env file
+2. Create env
 ```bash
 cp .env.example .env
 ```
 
-3. Start MongoDB locally (or update `MONGO_URI`).
+3. Start MongoDB and set `MONGO_URI`
 
-4. Generate local certs (recommended)
+4. Generate TLS certs
 ```bash
-# See full details:
-cat scripts/generateCerts.md
+./scripts/generate-certs.sh
 ```
 
 5. Seed admin
 ```bash
 npm run seed:admin
 ```
-Seeded admin credentials:
+
+Admin:
 - username: `admin`
 - password: `admin123`
 
-6. Start servers in three terminals
+6. Run Main + Backup nodes
 ```bash
-# Terminal 1
 npm run start:main
-
-# Terminal 2
-npm run start:sender
-
-# Terminal 3
-npm run start:receiver
+npm run start:backup
 ```
 
-## Usage Flow
+## Phase 3 Recovery Flow
 
-1. Open main node: `https://localhost:4000/auth/login`
-2. Login as admin.
-3. Create one sender user and one receiver user.
-4. Pair users into a room on admin dashboard.
-5. Open sender node login and receiver node login:
-- `https://localhost:4001/auth/login`
-- `https://localhost:4002/auth/login`
-6. Login with assigned users, enter room, chat in real time, and share temporary files.
+1. Suspicious activity detected (Phase 2)
+2. Room/session frozen, token revoked
+3. Admin starts recovery from incident page
+4. Main Node sends signed recovery request to Backup Node
+5. Backup creates `RecoveryRequest`
+6. Affected users open recovery page and re-authenticate on Main Node
+7. Main asks Backup to issue single-use recovery token for verified user
+8. Admin completes recovery (all users if configured)
+9. Backup returns clean new room ID
+10. Main creates new room and closes old room
+11. Users join new room using verified recovery flow
+12. Incident marked recovered/resolved
 
-After refresh/logout, old messages disappear from UI.
+## Manual Testing (Phase 3)
 
-## Env Variables
+1. Trigger a Phase 2 incident (e.g. message flood)
+2. Confirm room freezes and old room is blocked
+3. Open incident detail as admin
+4. Click **Start Recovery**
+5. Confirm backup request exists via `/admin/recovery/:recoveryId/status`
+6. As affected user, open `/recovery/:recoveryId`
+7. Re-authenticate with password (on Main Node)
+8. As admin, complete recovery
+9. User clicks **Join New Secure Room**
+10. Confirm old room remains frozen/closed
+11. Confirm new room chat works and old messages are not restored
 
-Required/used:
-- `MONGO_URI`
-- `JWT_SECRET`
-- `MAIN_NODE_PORT`
-- `SENDER_NODE_PORT`
-- `RECEIVER_NODE_PORT`
-- `TLS_KEY_PATH`
-- `TLS_CERT_PATH`
-- `NODE_TYPE`
-- `NODE_ID`
-- `MAIN_NODE_URL`
+## Hackathon Demo Script
 
-Optional:
-- `ACCESS_TOKEN_TTL`
-- `FILE_TTL_MS`
-- `MAX_FILE_BYTES`
+1. User A + User B chat normally
+2. Trigger suspicious activity
+3. Room freezes and users are blocked
+4. Admin sees incident + starts recovery
+5. Users verify identity again
+6. Admin completes recovery
+7. New secure room opens
+8. Chat resumes safely in recovered room
 
-## Explicit Future Hooks in Code
-
-- `TODO: Phase 2 threat detection hook on abnormal socket disconnects`
-- `TODO: Phase 2 anomaly scoring middleware`
-- `TODO: Phase 3 backup node recovery server`
-- `TODO: token revocation and secure reconnection`

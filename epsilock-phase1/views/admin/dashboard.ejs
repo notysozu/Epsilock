@@ -1,0 +1,64 @@
+<%- include('../partials/header') %>
+<%- include('../partials/sidebar') %>
+
+<main class="main-content">
+  <section class="admin-overview-grid">
+    <article class="overview-card">
+      <p class="label">Users</p>
+      <p class="value"><%= dashboardSummary.totalUsers %></p>
+      <p class="hint"><%= dashboardSummary.activeUsers %> active, <%= dashboardSummary.suspendedUsers %> suspended</p>
+    </article>
+    <article class="overview-card">
+      <p class="label">Rooms</p>
+      <p class="value"><%= dashboardSummary.totalRooms %></p>
+      <p class="hint"><%= dashboardSummary.frozenRooms %> frozen</p>
+    </article>
+    <article class="overview-card">
+      <p class="label">Live Sessions</p>
+      <p class="value"><%= dashboardSummary.onlineSessions %></p>
+      <p class="hint"><%= dashboardSummary.suspiciousSessions %> flagged</p>
+    </article>
+    <article class="overview-card">
+      <p class="label">Open Incidents</p>
+      <p class="value"><%= dashboardSummary.openIncidents %></p>
+      <p class="hint">Metadata only, no message content</p>
+    </article>
+  </section>
+
+  <section class="admin-quick-actions">
+    <a class="btn secondary-btn" href="/admin/users"><i class="fa-solid fa-users-gear"></i> Manage Users</a>
+    <a class="btn secondary-btn" href="/admin/rooms"><i class="fa-solid fa-door-open"></i> Manage Rooms</a>
+    <a class="btn secondary-btn" href="/admin/incidents"><i class="fa-solid fa-triangle-exclamation"></i> Review Incidents</a>
+  </section>
+
+  <!-- Shared Panels -->
+  <div id="chat-panel" class="tab-content active">
+    <%- include('../user/chat') %>
+  </div>
+  <div id="visualizer-panel" class="tab-content">
+    <%- include('../user/visualizer') %>
+  </div>
+  <div id="cert-panel" class="tab-content">
+    <%- include('../user/certStatus') %>
+  </div>
+  <div id="role-panel" class="tab-content">
+    <%- include('../user/roleAccess') %>
+  </div>
+
+  <!-- Admin Panels -->
+  <div id="admin-users-panel" class="tab-content">
+    <%- include('./userManagement') %>
+  </div>
+  <div id="admin-breach-panel" class="tab-content">
+    <%- include('./breachInvestigation') %>
+  </div>
+</main>
+
+<script>
+  window.currentUserContext = {
+    name: "<%= user.name %>",
+    role: "<%= user.role %>"
+  };
+</script>
+
+<%- include('../partials/footer') %>

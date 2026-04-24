@@ -1,0 +1,64 @@
+<div class="panel-card">
+  <div class="panel-header d-flex justify-between align-center">
+    <h3>Security Investigation</h3>
+    <a href="/admin/incidents" class="btn danger-btn"><i class="fa-solid fa-shield-halved"></i> Open Incident Console</a>
+  </div>
+
+  <div class="breach-grid mt-4">
+    <div class="breach-origin-card">
+      <h4><i class="fa-solid fa-globe"></i> Origin Analysis</h4>
+      <div id="investigationMap" class="map-sim"></div>
+      <div class="origin-details mt-2">
+        <div class="data-row"><span>Country:</span> <span id="mapCountry">Unknown</span></div>
+        <div class="data-row"><span>ISP/Org:</span> <span id="mapIsp">Unknown</span></div>
+        <div class="data-row"><span>Anomaly:</span> <span id="mapAnomaly">Select an incident row</span></div>
+        <div class="data-row"><span>Flagged by:</span> <span class="text-emerald">Phase 2 detection engine</span></div>
+      </div>
+    </div>
+
+    <div class="breach-logs">
+      <h4><i class="fa-solid fa-clipboard-list"></i> Recent Incident Logs</h4>
+      <table class="data-table" id="breachLogTable">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Type</th>
+            <th>IP Origin</th>
+            <th>Location</th>
+            <th>Severity</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="breachLogBody">
+          <% if (!breachLogs || breachLogs.length === 0) { %>
+            <tr>
+              <td colspan="6" class="text-gray">No incidents found.</td>
+            </tr>
+          <% } %>
+          <% (breachLogs || []).forEach(log => { %>
+            <tr class="clickable-row" data-ip="<%= log.ip %>" data-type="<%= log.type %>" title="Click to trace origin">
+              <td class="text-gray"><%= log.timestamp %></td>
+              <td><%= log.type %></td>
+              <td class="mono-text"><%= log.ip %></td>
+              <td><%= log.location %></td>
+              <td>
+                <% if (log.severity === 'High') { %><span class="badge bg-red">High</span><% } %>
+                <% if (log.severity === 'Medium') { %><span class="badge bg-amber">Medium</span><% } %>
+                <% if (log.severity === 'Low') { %><span class="badge bg-yellow text-dark">Low</span><% } %>
+              </td>
+              <td class="status-cell">
+                <% if (log.status === 'resolved') { %>
+                  <span class="badge bg-green"><i class="fa-solid fa-check"></i> Resolved</span>
+                <% } else if (log.status === 'reviewed') { %>
+                  <span class="badge bg-amber"><i class="fa-solid fa-eye"></i> Reviewed</span>
+                <% } else { %>
+                  <span class="badge bg-red"><i class="fa-solid fa-triangle-exclamation"></i> Open</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

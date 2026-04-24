@@ -1,0 +1,26 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Incident Detail</title><link rel="stylesheet" href="/css/style.css"></head>
+<body class="admin-page">
+<div style="padding:24px">
+  <h2><%= incident.incidentId %></h2>
+  <p><a href="/admin/incidents">Back</a></p>
+  <p>Type: <%= incident.type %></p>
+  <p>Severity: <%= incident.severity %></p>
+  <p>Status: <%= incident.status %></p>
+  <p>Reason: <%= incident.reason %></p>
+  <p>Source IP: <%= incident.sourceIp || '-' %></p>
+  <p>Source Location: <%= [incident?.sourceGeo?.city, incident?.sourceGeo?.region, incident?.sourceGeo?.country].filter(Boolean).join(', ') || '-' %></p>
+  <p>Room: <%= incident.roomId || '-' %></p>
+  <p>Recovery ID: <%= incident.recoveryId || '-' %></p>
+  <p>Recovery Status: <%= incident.recoveryStatus || 'not_started' %></p>
+  <% if (incident.roomId && (!incident.recoveryId || incident.recoveryStatus === 'failed')) { %>
+  <form method="post" action="/admin/incidents/<%= incident.incidentId %>/start-recovery"><button type="submit">Start Recovery</button></form>
+  <% } %>
+  <% if (incident.recoveryId) { %>
+  <p><a href="/admin/recovery/<%= incident.recoveryId %>/status">Recovery Status</a> | <a href="/recovery/<%= incident.recoveryId %>">Open Recovery Flow</a></p>
+  <% } %>
+  <form method="post" action="/admin/incidents/<%= incident._id %>/review"><button type="submit">Mark Reviewed</button></form>
+  <form method="post" action="/admin/incidents/<%= incident._id %>/resolve"><button type="submit">Mark Resolved</button></form>
+</div>
+<script src="/public/admin-security.js"></script>
+</body></html>

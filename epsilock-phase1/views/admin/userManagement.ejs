@@ -1,0 +1,91 @@
+<div class="panel-card">
+  <div class="panel-header d-flex justify-between align-center">
+    <h3>User Management</h3>
+    <a class="btn secondary-btn" href="/admin/users"><i class="fa-solid fa-up-right-from-square"></i> Open Full Page</a>
+  </div>
+
+  <form method="post" action="/admin/users/create" class="inline-form-grid">
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" name="username" required placeholder="new user">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" name="password" required placeholder="minimum 8 chars">
+    </div>
+    <div class="form-group">
+      <label>Role</label>
+      <select name="role">
+        <option value="user">User</option>
+      </select>
+    </div>
+    <div class="form-group form-btn-row">
+      <button class="btn primary-btn" type="submit"><i class="fa-solid fa-user-plus"></i> Create User</button>
+    </div>
+  </form>
+
+  <table class="data-table mt-4" id="userManagementTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Status</th>
+        <th>Security</th>
+        <th>Token</th>
+        <th class="right">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% users.forEach(u => { %>
+        <tr data-id="<%= u.id %>">
+          <td><%= u.name %></td>
+          <td>
+            <% if (u.status === 'Active') { %>
+              <span class="badge bg-green"><i class="fa-solid fa-check"></i> Active</span>
+            <% } else { %>
+              <span class="badge bg-red"><i class="fa-solid fa-ban"></i> Suspended</span>
+            <% } %>
+          </td>
+          <td>
+            <% if (u.requirePasswordReset) { %>
+              <span class="badge bg-amber"><i class="fa-solid fa-key"></i> Reset Required</span>
+            <% } else { %>
+              <span class="text-gray">OK</span>
+            <% } %>
+          </td>
+          <td class="mono-text token-col"><%= u.token %></td>
+          <td class="right">
+            <% if (u.status === 'Active') { %>
+              <form method="post" action="/admin/users/<%= u.id %>/block" class="inline-action-form">
+                <button class="btn icon-btn" type="submit" title="Block user">
+                  <i class="fa-solid fa-ban text-amber"></i>
+                </button>
+              </form>
+            <% } else { %>
+              <form method="post" action="/admin/users/<%= u.id %>/unblock" class="inline-action-form">
+                <button class="btn icon-btn" type="submit" title="Unblock user">
+                  <i class="fa-solid fa-user-check text-green"></i>
+                </button>
+              </form>
+            <% } %>
+            <form method="post" action="/admin/users/delete/<%= u.id %>" class="inline-action-form">
+              <button class="btn icon-btn" type="submit" title="Delete user">
+                <i class="fa-solid fa-trash text-red"></i>
+              </button>
+            </form>
+            <form method="post" action="/admin/users/<%= u.id %>/disconnect" class="inline-action-form">
+              <button class="btn icon-btn" type="submit" title="Disconnect all active sessions now">
+                <i class="fa-solid fa-plug-circle-xmark text-blue"></i>
+              </button>
+            </form>
+            <form method="post" action="/admin/users/<%= u.id %>/reset-password" class="inline-action-form">
+              <input type="password" name="newPassword" required minlength="8" placeholder="new password" class="mini-input">
+              <button class="btn icon-btn" type="submit" title="Reset password and logout all sessions">
+                <i class="fa-solid fa-rotate text-blue"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>

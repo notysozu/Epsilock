@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - SecureComms</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Roboto+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="login-bg">
+  <div class="login-container">
+    <div class="login-header">
+      <i class="fa-solid fa-shield-halved fa-3x logo-icon"></i>
+      <h2>SecureComms</h2>
+    </div>
+
+    <% if (error) { %>
+      <div class="alert error"><%= error %></div>
+    <% } %>
+
+    <form action="/login" method="POST" id="loginForm">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" name="username" required placeholder="Enter username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" required placeholder="Enter password (password123)">
+      </div>
+
+      <button type="submit" class="btn primary-btn" id="loginBtn">Authenticate</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function() {
+      const btn = document.getElementById('loginBtn');
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying credentials...';
+      btn.disabled = true;
+    });
+  </script>
+</body>
+</html>
