@@ -19,9 +19,16 @@
   let currentRoomId = preselectedRoomId || (roomSelect ? roomSelect.value : '');
 
   function setStatus(text, cls) {
-    if (!sessionStatusText) return;
-    sessionStatusText.className = `mono-text ${cls || 'text-gray'}`;
-    sessionStatusText.textContent = text;
+    if (sessionStatusText) {
+      sessionStatusText.className = `mono-text ${cls || 'text-gray'}`;
+      sessionStatusText.textContent = text;
+    }
+    const wssIndicator = document.getElementById('wssStatusChat');
+    if (wssIndicator) {
+      const isOnline = text.includes('ready') || text.includes('active') || text.includes('Joining');
+      wssIndicator.className = `status-indicator ${isOnline ? 'status-online' : 'status-offline'}`;
+      wssIndicator.textContent = isOnline ? 'WSS: CONNECTED' : 'WSS: DISCONNECTED';
+    }
   }
 
   function append(text, cls = 'msg-received') {
@@ -54,6 +61,11 @@
       socketReady = true;
       setStatus('Secure channel ready. Join room to start session.', 'text-green');
       append('Secure connection established.');
+      const wssIndicator = document.getElementById('wssStatusChat');
+      if (wssIndicator) {
+        wssIndicator.className = 'status-indicator status-online';
+        wssIndicator.textContent = 'WSS: CONNECTED';
+      }
       if (joinRequested && currentRoomId) {
         ws.send(JSON.stringify({ type: 'JOIN_ROOM', roomId: currentRoomId }));
       }
@@ -64,6 +76,11 @@
       roomJoined = false;
       setInputState(false);
       setStatus('Disconnected. Join again to restart session.', 'text-red');
+      const wssIndicator = document.getElementById('wssStatusChat');
+      if (wssIndicator) {
+        wssIndicator.className = 'status-indicator status-offline';
+        wssIndicator.textContent = 'WSS: DISCONNECTED';
+      }
     });
 
     ws.addEventListener('message', (event) => {

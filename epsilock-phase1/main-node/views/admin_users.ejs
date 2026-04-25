@@ -9,9 +9,10 @@
     <button type="submit">Create</button>
   </form>
 </section>
-<section class="card">
-  <table>
-    <thead><tr><th>Username</th><th>Role</th><th>Blocked</th><th>Reset Password</th><th>Actions</th></tr></thead>
+<section class="card cascading-item">
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Username</th><th>Role</th><th>Blocked</th><th>Reset Password</th><th>Actions</th></tr></thead>
     <tbody>
       <% users.forEach((u) => { %>
         <tr>
@@ -35,4 +36,5 @@
       <% }) %>
     </tbody>
   </table>
+  </div>
 </section>

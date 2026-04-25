@@ -113,7 +113,9 @@ router.get('/admin/rooms', async (_req, res) => {
     Room.find().sort({ createdAt: -1 }).lean(),
     User.find({ role: 'user' }).sort({ username: 1 }).lean()
   ]);
-  res.render('layout', { title: 'Admin Rooms', bodyView: 'admin_rooms', data: { rooms, users, error: null, admin: { ..._req.auth, token: _req.cookies?.epsi_access || '' } } });
+  const userMap = {};
+  users.forEach((u) => userMap[String(u._id)] = u.username);
+  res.render('layout', { title: 'Admin Rooms', bodyView: 'admin_rooms', data: { rooms, users, userMap, error: null, admin: { ..._req.auth, token: _req.cookies?.epsi_access || '' } } });
 });
 
 router.post('/admin/rooms/create', async (req, res) => {
@@ -155,10 +157,11 @@ router.get('/admin/nodes', async (req, res) => {
     NodeSession.find().sort({ connectedAt: -1 }).limit(200).lean(),
     User.find({ role: 'user' }).lean()
   ]);
-  const userMap = new Map(users.map((u) => [String(u._id), u.username]));
+  const userMapObj = {};
+  users.forEach((u) => userMapObj[String(u._id)] = u.username);
   const rows = sessions.map((s) => ({
     ...s,
-    username: userMap.get(String(s.userId)) || s.userId
+    username: userMapObj[String(s.userId)] || s.userId
   }));
   res.render('layout', { title: 'Admin Nodes', bodyView: 'admin_nodes', data: { rows, admin: { ...req.auth, token: req.cookies?.epsi_access || '' } } });
 });

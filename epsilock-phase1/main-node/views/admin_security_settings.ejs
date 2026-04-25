@@ -1,44 +1,55 @@
-<h1>Security Settings</h1>
+<div class="settings-root">
 <p class="muted">Global controls are persisted and pushed to all user nodes live (no restart).</p>
 
-<section class="card">
-  <form id="securitySettingsForm" class="grid two">
-    <label>
-      Attacker Demo Enabled
-      <select name="attackerDemoEnabled" id="attackerDemoEnabled">
-        <option value="true" <%= settings.attackerDemoEnabled ? 'selected' : '' %>>ON</option>
-        <option value="false" <%= !settings.attackerDemoEnabled ? 'selected' : '' %>>OFF</option>
-      </select>
-    </label>
+<section class="card cascading-item">
+  <form id="securitySettingsForm" class="stack">
+    <div class="grid two">
+      <div class="form-group">
+        <label>Attacker Demo</label>
+        <select name="attackerDemoEnabled" id="attackerDemoEnabled">
+          <option value="true" <%= settings.attackerDemoEnabled ? 'selected' : '' %>>ACTIVE</option>
+          <option value="false" <%= !settings.attackerDemoEnabled ? 'selected' : '' %>>DISABLED</option>
+        </select>
+      </div>
 
-    <label>
-      Cover Traffic Enabled
-      <select name="coverTrafficEnabled" id="coverTrafficEnabled">
-        <option value="true" <%= settings.coverTrafficEnabled ? 'selected' : '' %>>ON</option>
-        <option value="false" <%= !settings.coverTrafficEnabled ? 'selected' : '' %>>OFF</option>
-      </select>
-    </label>
+      <div class="form-group">
+        <label>Cover Traffic Status</label>
+        <select name="coverTrafficEnabled" id="coverTrafficEnabled">
+          <option value="true" <%= settings.coverTrafficEnabled ? 'selected' : '' %>>ACTIVE (MIXED MODE)</option>
+          <option value="false" <%= !settings.coverTrafficEnabled ? 'selected' : '' %>>DISABLED (CLEAN MODE)</option>
+        </select>
+      </div>
+    </div>
 
-    <label>
-      Cover Traffic Interval (ms)
-      <input type="number" name="coverTrafficIntervalMs" id="coverTrafficIntervalMs" min="100" max="60000" value="<%= settings.coverTrafficIntervalMs %>">
-    </label>
+    <div class="slider-control-row mt-4">
+      <div class="slider-info">
+        <span>Cover Traffic Interval (ms)</span>
+        <span class="badge bg-blue" id="val_interval"><%= settings.coverTrafficIntervalMs %> ms</span>
+      </div>
+      <input type="range" name="coverTrafficIntervalMs" id="coverTrafficIntervalMs" min="100" max="10000" step="100" value="<%= settings.coverTrafficIntervalMs %>" oninput="document.getElementById('val_interval').innerText = this.value + ' ms'">
+    </div>
 
-    <label>
-      Cover Traffic Jitter (ms)
-      <input type="number" name="coverTrafficJitterMs" id="coverTrafficJitterMs" min="0" max="60000" value="<%= settings.coverTrafficJitterMs %>">
-    </label>
+    <div class="slider-control-row">
+      <div class="slider-info">
+        <span>Cover Traffic Jitter (ms)</span>
+        <span class="badge bg-amber" id="val_jitter"><%= settings.coverTrafficJitterMs %> ms</span>
+      </div>
+      <input type="range" name="coverTrafficJitterMs" id="coverTrafficJitterMs" min="0" max="5000" step="50" value="<%= settings.coverTrafficJitterMs %>" oninput="document.getElementById('val_jitter').innerText = this.value + ' ms'">
+    </div>
 
-    <label>
-      Cover Traffic Ratio
-      <input type="number" name="coverTrafficRatio" id="coverTrafficRatio" min="1" max="20" value="<%= settings.coverTrafficRatio %>">
-    </label>
+    <div class="slider-control-row">
+      <div class="slider-info">
+        <span>Cover Traffic Ratio</span>
+        <span class="badge bg-green" id="val_ratio">1 : <%= settings.coverTrafficRatio %></span>
+      </div>
+      <input type="range" name="coverTrafficRatio" id="coverTrafficRatio" min="1" max="20" step="1" value="<%= settings.coverTrafficRatio %>" oninput="document.getElementById('val_ratio').innerText = '1 : ' + this.value">
+    </div>
 
-    <div class="row">
-      <button type="submit">Save</button>
-      <button type="button" id="refreshSettingsBtn">Refresh</button>
+    <div class="row mt-4">
+      <button type="submit" class="primary-btn">APPLY SECURITY PARAMS</button>
+      <button type="button" id="refreshSettingsBtn" class="secondary-btn">SYNC FROM SERVER</button>
     </div>
   </form>
 
-  <p id="settingsSaveStatus" class="muted">Last updated: <%= settings.updatedAt ? new Date(settings.updatedAt).toLocaleString() : '-' %></p>
+  <p id="settingsSaveStatus" class="muted mt-4">System last updated: <%= settings.updatedAt ? new Date(settings.updatedAt).toLocaleString() : 'NEVER' %></p>
 </section>

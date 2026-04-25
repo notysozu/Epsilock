@@ -1,52 +1,45 @@
-<section class="card">
-  <h2>Connection</h2>
-  <p><strong>Main Node WSS:</strong> <span id="connStatus"><%= state.connected ? 'CONNECTED' : 'DISCONNECTED' %></span></p>
-  <p><strong>Node Auth:</strong> <span id="authStatus"><%= state.authenticated ? 'OK' : 'PENDING' %></span></p>
-  <p><strong>Transport:</strong> <span id="tlsStatus"><%= state.tlsWss %></span></p>
-  <p><strong>Demo leaked key mode:</strong> <span id="leakedKeyMode"><%= state.demoLeakedKeyMode ? 'ON' : 'OFF' %></span></p>
-  <p class="muted">This node only receives demo packet copies intentionally mirrored by main-node.</p>
-</section>
-
-<section class="card">
-  <h2>Traffic Security Mode</h2>
-  <p><strong>Attacker Demo:</strong> <span id="attackerDemoEnabled"><%= state.settings.attackerDemoEnabled ? 'ON' : 'OFF' %></span></p>
-  <p><strong>Cover Traffic:</strong> <span id="coverStatus"><%= state.settings.coverTrafficEnabled ? 'ON' : 'OFF' %></span></p>
-  <p class="muted">Interval <span id="coverInterval"><%= state.settings.coverTrafficIntervalMs %></span>ms, Jitter <span id="coverJitter"><%= state.settings.coverTrafficJitterMs %></span>ms, Ratio <span id="coverRatio"><%= state.settings.coverTrafficRatio %></span></p>
-  <p><strong>Attacker confidence:</strong> <span id="confidence"><%= state.confidence %></span></p>
-  <p id="confidenceNote" class="muted">
-    <%= state.settings.coverTrafficEnabled
-      ? 'Cover traffic adds noise and reduces timing-analysis confidence. It does not make the system unhackable.'
-      : 'Without cover traffic, timing and real-message patterns are easier to isolate.' %>
-  </p>
-</section>
-
-<section class="grid four">
-  <article class="card"><h3>Total Packets</h3><p id="totalPackets"><%= state.stats.totalPackets %></p></article>
-  <article class="card"><h3>Real Packets</h3><p id="realPackets"><%= state.stats.realPackets %></p></article>
-  <article class="card"><h3>Cover Packets</h3><p id="coverPackets"><%= state.stats.coverPackets %></p></article>
-  <article class="card"><h3>Decrypt Success</h3><p id="decryptSuccess"><%= state.stats.decryptionSuccess %></p></article>
-</section>
-
-<section class="card">
-  <div class="row">
-    <h2>Captured Packet Stream</h2>
-    <button id="clearBtn" type="button">Clear Local Demo Buffer</button>
+<div class="attacker-terminal-header" style="display: flex; justify-content: space-between; font-family: monospace; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px;">
+  <div style="color: #0f0;">
+    [STATUS: <span id="connStatus"><%= state.connected ? 'CONNECTED' : 'DISCONNECTED' %></span>] | 
+    [AUTH: <span id="authStatus"><%= state.authenticated ? 'OK' : 'PENDING' %></span>] | 
+    [COVER_MODE: <span id="coverStatus"><%= state.settings.coverTrafficEnabled ? 'ON' : 'OFF' %></span>]
   </div>
-  <table>
-    <thead>
+  <div style="color: #0f0;">
+    [CONFIDENCE: <span id="confidence"><%= state.confidence %></span>] | 
+    PKTS (TOT/REAL/COV): 
+    <span id="totalPackets"><%= state.stats.totalPackets %></span>/
+    <span id="realPackets"><%= state.stats.realPackets %></span>/
+    <span id="coverPackets"><%= state.stats.coverPackets %></span>
+  </div>
+</div>
+
+<section class="card" style="background: transparent; border: none; box-shadow: none;">
+  <div class="row" style="margin-bottom: 15px;">
+    <h2 style="color: #0f0; font-family: monospace; font-size: 1.1rem; flex: 1;">> INTERCEPTION_STREAM --LIVE</h2>
+    <button id="clearBtn" type="button" class="secondary-btn" style="padding: 4px 8px; font-size: 0.8rem;">FLUSH_BUFFER</button>
+  </div>
+  <table style="font-family: monospace; font-size: 0.9rem; table-layout: fixed; width: 100%;">
+    <thead style="color: #0f0; border-bottom: 1px solid #0f0;">
       <tr>
-        <th>Time</th><th>packetId</th><th>type</th><th>roomId</th><th>fromUserId</th><th>toUserId</th><th>sizeBytes</th><th>isCover</th><th>decrypt</th><th>decrypted preview</th>
+        <th style="width: 80px;">Time</th>
+        <th style="width: 110px;">packetId</th>
+        <th style="width: 140px;">type</th>
+        <th style="width: 90px;">roomId</th>
+        <th style="width: 90px;">fromUserId</th>
+        <th style="width: 80px;">sizeBytes</th>
+        <th style="width: 70px;">isCover</th>
+        <th style="width: 80px;">decrypt</th>
+        <th>decrypted payload</th>
       </tr>
     </thead>
     <tbody id="packetRows">
       <% state.packets.slice(0, 150).forEach((p) => { %>
-        <tr>
+        <tr class="<%= p.isCover ? 'row-cover' : 'row-real' %>">
           <td><%= new Date(p.time).toLocaleTimeString() %></td>
           <td class="mono"><%= p.packetId %></td>
           <td><%= p.type %></td>
           <td><%= p.roomId %></td>
           <td><%= p.fromUserId %></td>
-          <td><%= p.toUserId %></td>
           <td><%= p.sizeBytes %></td>
           <td><%= p.isCover ? 'yes' : 'no' %></td>
           <td><%= p.decryptStatus %></td>
@@ -56,3 +49,4 @@
     </tbody>
   </table>
 </section>
+

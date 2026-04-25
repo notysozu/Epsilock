@@ -1,9 +1,54 @@
-<section class="card narrow">
-  <h1>User Login</h1>
-  <% if (error) { %><p class="error"><%= error %></p><% } %>
-  <form method="post" action="/login" class="stack">
-    <label>Username <input name="username" required></label>
-    <label>Password <input type="password" name="password" required></label>
-    <button type="submit">Login</button>
-  </form>
-</section>
+<div class="login-auth-container">
+  <div class="login-premium-card cascading-item">
+    <div class="login-brand">
+      <div class="brand-icon">
+        <img src="/public/images/epsilock_logo.png" alt="Epsilock Logo" class="custom-logo" style="max-height: 80px; width: auto; max-width: 100%; border-radius: 8px;">
+      </div>
+      <h2>Secure Login</h2>
+      <p>Tactical Session Access</p>
+    </div>
+
+    <% if (data && data.error) { %>
+      <div class="login-alert">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span><%= data.error %></span>
+      </div>
+    <% } %>
+
+    <form method="post" action="/login" id="loginForm" class="premium-form">
+      <div class="input-field">
+        <label>USERNAME</label>
+        <div class="input-row">
+          <i class="fa-solid fa-user"></i>
+          <input name="username" required placeholder="Enter username" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="input-field">
+        <label>PASSWORD</label>
+        <div class="input-row">
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" name="password" required placeholder="••••••••" autocomplete="off">
+        </div>
+      </div>
+
+      <button type="submit" id="loginBtn" class="login-trigger">
+        <span>AUTHORIZE SESSION</span>
+        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+      </button>
+    </form>
+    
+    <div class="login-footer">
+      <p>ENCRYPTION ACTIVE: AES-256-GCM</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('loginForm')?.addEventListener('submit', function() {
+    const btn = document.getElementById('loginBtn');
+    if (btn) {
+      btn.querySelector('span').textContent = 'AUTHORIZING...';
+    }
+  });
+</script>

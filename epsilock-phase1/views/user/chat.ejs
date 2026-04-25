@@ -1,31 +1,43 @@
-<div class="panel-card chat-container">
-  <div class="chat-header">
-    <h3><i class="fa-solid fa-lock"></i> Encrypted Comms Channel</h3>
+<div class="panel-card chat-container cascading-item">
+  <div class="chat-header-unified">
+    <div class="comms-branding">
+      <i class="fa-solid fa-satellite-dish"></i>
+      <h3>ENCRYPTED_COMMS_HUB</h3>
+    </div>
+    <div id="wssStatusChat" class="status-indicator status-offline">WSS: DISCONNECTED</div>
   </div>
-  <div class="chat-onboarding-bar">
-    <% if (typeof rooms !== 'undefined' && rooms && rooms.length > 0) { %>
-      <label for="roomSelect" class="chat-room-select-wrap">
-        <span class="small text-gray">Select Room</span>
+
+  <div class="chat-control-bar">
+    <div class="room-selector-wrap">
+      <% if (typeof rooms !== 'undefined' && rooms && rooms.length > 0) { %>
+        <i class="fa-solid fa-door-open"></i>
         <select id="roomSelect">
-          <option value="">Choose a room...</option>
+          <option value="">-- SELECT TACTICAL ROOM --</option>
           <% rooms.forEach(function(r) { %>
             <option value="<%= r.roomId %>" <%= (typeof activeRoomId !== 'undefined' && activeRoomId === r.roomId) ? 'selected' : '' %>>
-              <%= r.name %> (<%= r.roomId %>)
+              <%= r.name %> [<%= r.roomId %>]
             </option>
           <% }) %>
         </select>
-      </label>
-      <button id="joinRoomBtn" type="button" class="btn primary-btn">Join Room</button>
-      <span id="sessionStatusText" class="text-gray mono-text">Session not started</span>
-    <% } else { %>
-      <span class="text-amber">No room assigned. Ask admin to assign your account to a room.</span>
-    <% } %>
+        <button id="joinRoomBtn" type="button" class="join-action-btn">ESTABLISH LINK</button>
+      <% } else { %>
+        <span class="text-red">UNAUTHORIZED: NO CHANNELS ASSIGNED</span>
+      <% } %>
+    </div>
+    <div class="session-info">
+      <span id="sessionStatusText" class="mono-text">WAITING_FOR_UPLINK</span>
+    </div>
   </div>
-  <div class="chat-thread" id="chatThread">
-    <!-- Messages will be loaded here via JS -->
+
+  <div class="chat-thread terminal-theme-chat" id="chatThread">
+    <!-- Messages will be injected here -->
+    <div class="system-msg">READY FOR OPS. SELECT ROOM TO BEGIN.</div>
   </div>
-  <div class="chat-inputbar">
-    <input type="text" id="chatInput" placeholder="Enter encrypted message...">
-    <button id="sendBtn" class="btn primary-btn"><i class="fa-solid fa-paper-plane"></i></button>
+
+  <div class="chat-input-area">
+    <div class="input-wrapper">
+      <input type="text" id="chatInput" placeholder="TYPE SECURE PAYLOAD..." autocomplete="off">
+      <button id="sendBtn" class="send-action-btn"><i class="fa-solid fa-paper-plane"></i> SEND</button>
+    </div>
   </div>
 </div>
