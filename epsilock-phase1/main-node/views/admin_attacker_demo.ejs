@@ -1,4 +1,4 @@
-<h1>Attacker Demo</h1>
+<div class="traffic-manager-root">
 <p class="muted">Cover traffic does not replace encryption. It reduces metadata leakage and timing analysis usefulness.</p>
 <section class="card">
   <h2>Current Cover Traffic Settings</h2>
@@ -32,34 +32,60 @@
 </section>
 
 <div class="grid two">
-  <section class="card">
-    <h2>WITHOUT COVER TRAFFIC</h2>
-    <p><strong>Attacker confidence: <%= confidenceWithout %></strong></p>
-    <p>Real messages are easy to isolate.</p>
-    <table>
-      <thead><tr><th>Time</th><th>From</th><th>To</th><th>Size</th><th>Type</th><th>Decrypted (attacker view)</th></tr></thead>
-      <tbody>
-        <% withoutCover.slice(0, 40).forEach((p) => { %>
-          <tr><td><%= new Date(p.createdAt).toLocaleTimeString() %></td><td><%= p.fromUserId || '-' %></td><td><%= p.toUserId || '-' %></td><td><%= p.sizeBytes %></td><td><%= p.type %></td><td class="small"><%= p.decrypted || '-' %></td></tr>
-        <% }) %>
-      </tbody>
-    </table>
+  <section class="card terminal-window cascading-item">
+    <div class="terminal-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <div class="dot red"></div><div class="dot amber"></div><div class="dot green"></div>
+      <span class="terminal-title">TRAFFIC_STREAM: WITHOUT_COVER</span>
+      <i class="fa-solid fa-chevron-up collapse-icon"></i>
+    </div>
+    <div class="terminal-body logbox">
+      <div class="terminal-meta">Confidence: <span class="confidence-badge high"><%= confidenceWithout %></span></div>
+      <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>TIME</th><th>SRC</th><th>DST</th><th>SIZE</th><th>TYPE</th><th>DECRYPTED</th></tr></thead>
+        <tbody>
+          <% withoutCover.slice(0, 50).forEach((p) => { %>
+            <tr class="packet-row <%= p.type === 'REAL_MESSAGE' ? 'real' : '' %>">
+              <td><%= new Date(p.createdAt).toLocaleTimeString([], {hour12:false}) %></td>
+              <td><%= p.fromUserId ? String(p.fromUserId).slice(-4) : '----' %></td>
+              <td><%= p.toUserId ? String(p.toUserId).slice(-4) : '----' %></td>
+              <td><%= p.sizeBytes %>B</td>
+              <td><%= p.type %></td>
+              <td class="small-mono"><%= p.decrypted || '[ENCRYPTED_BLOB]' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      </div>
+    </div>
   </section>
-  <section class="card">
-    <h2>WITH COVER TRAFFIC</h2>
-    <p><strong>Attacker confidence: <%= confidenceWith %></strong></p>
-    <p>
-      Mode:
-      <strong id="coverTrafficModeLabel"><%= coverEnabled ? 'MIXED / NOISY MODE ACTIVE' : 'CLEAN / ISOLATABLE MODE (COVER OFF)' %></strong>
-    </p>
-    <p>Cover traffic increases noise, hides timing, and reduces metadata usefulness.</p>
-    <table>
-      <thead><tr><th>Time</th><th>From</th><th>To</th><th>Size</th><th>Type</th><th>Cover</th><th>Decrypted (attacker view)</th></tr></thead>
-      <tbody>
-        <% withCover.slice(0, 40).forEach((p) => { %>
-          <tr><td><%= new Date(p.createdAt).toLocaleTimeString() %></td><td><%= p.fromUserId || '-' %></td><td><%= p.toUserId || '-' %></td><td><%= p.sizeBytes %></td><td><%= p.type %></td><td><%= p.isCover ? 'yes' : 'no' %></td><td class="small"><%= p.decrypted || '-' %></td></tr>
-        <% }) %>
-      </tbody>
-    </table>
+
+  <section class="card terminal-window cascading-item">
+    <div class="terminal-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <div class="dot red"></div><div class="dot amber"></div><div class="dot green"></div>
+      <span class="terminal-title">TRAFFIC_STREAM: WITH_COVER</span>
+      <i class="fa-solid fa-chevron-up collapse-icon"></i>
+    </div>
+    <div class="terminal-body logbox">
+      <div class="terminal-meta">Confidence: <span class="confidence-badge <%= confidenceWith === 'LOW' ? 'low' : 'medium' %>"><%= confidenceWith %></span></div>
+      <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>TIME</th><th>SRC</th><th>DST</th><th>SIZE</th><th>TYPE</th><th>COVER</th><th>DECRYPTED</th></tr></thead>
+        <tbody>
+          <% withCover.slice(0, 50).forEach((p) => { %>
+            <tr class="packet-row <%= p.isCover ? 'cover' : 'real' %>">
+              <td><%= new Date(p.createdAt).toLocaleTimeString([], {hour12:false}) %></td>
+              <td><%= p.fromUserId ? String(p.fromUserId).slice(-4) : '----' %></td>
+              <td><%= p.toUserId ? String(p.toUserId).slice(-4) : '----' %></td>
+              <td><%= p.sizeBytes %>B</td>
+              <td><%= p.type %></td>
+              <td><%= p.isCover ? 'YES' : 'NO' %></td>
+              <td class="small-mono"><%= p.decrypted || '[ENCRYPTED_BLOB]' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      </div>
+    </div>
   </section>
 </div>

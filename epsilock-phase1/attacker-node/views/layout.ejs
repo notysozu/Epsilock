@@ -4,15 +4,36 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><%= title %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="/public/styles.css">
 </head>
-<body>
-  <header class="topbar">
-    <h1>EPSILOCK Attacker Node (Demo)</h1>
-    <a href="/attacker">Dashboard</a>
-  </header>
-  <main class="container">
-    <%- include(bodyView, data || {}) %>
+<body class="minimal-attacker-shell">
+  <nav class="ops-nav">
+    <div class="nav-brand" style="display: flex; align-items: center; gap: 0.75rem;">
+      <img src="/public/images/epsilock_logo.png" alt="Epsilock Logo" style="height: 32px; width: auto; border-radius: 4px;">
+      <span>EPSILOCK_BREACH_CTL</span>
+    </div>
+    <div class="nav-center">
+      <div id="wssStatusAttacker" class="wss-tag status-offline">SRV: DISCONNECTED</div>
+    </div>
+    <div class="nav-right">
+      <div class="op-id">ID: 0xDE7A</div>
+    </div>
+  </nav>
+
+  <main class="main-body">
+    <header class="ops-header">
+      <div class="title-wrap">
+        <h1><%= title %></h1>
+        <p class="muted">Live Interception Stream Active</p>
+      </div>
+      <div class="meta-wrap">
+        <span class="timestamp" id="liveClock">--:--:--</span>
+      </div>
+    </header>
+    <div class="ops-content">
+      <%- include(bodyView, data || {}) %>
+    </div>
   </main>
   <script src="/public/attacker.js"></script>
 </body>

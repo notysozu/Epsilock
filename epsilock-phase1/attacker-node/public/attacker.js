@@ -6,6 +6,20 @@
     if (el) el.textContent = String(value);
   }
 
+  function setBadge(id, cond, textTrue, textFalse, classTrue, classFalse) {
+    const el = byId(id);
+    if (!el) return;
+    el.textContent = cond ? textTrue : textFalse;
+    el.className = `badge ${cond ? classTrue : classFalse}`;
+  }
+
+  function setConfidenceBadge(id, val) {
+    const el = byId(id);
+    if (!el) return;
+    el.textContent = val || '-';
+    el.className = `badge ${val === 'LOW' ? 'bg-red' : 'bg-green'}`;
+  }
+
   function renderPackets(packets) {
     const tbody = byId('packetRows');
     if (!tbody) return;
@@ -13,6 +27,7 @@
 
     packets.slice(0, 180).forEach((p) => {
       const tr = document.createElement('tr');
+      tr.className = p.isCover ? 'row-cover' : 'row-real';
       tr.innerHTML = `
         <td>${new Date(p.time).toLocaleTimeString()}</td>
         <td class="mono">${p.packetId}</td>
@@ -21,7 +36,7 @@
         <td>${p.fromUserId}</td>
         <td>${p.toUserId}</td>
         <td>${p.sizeBytes}</td>
-        <td>${p.isCover ? 'yes' : 'no'}</td>
+        <td>${p.isCover ? 'YES' : 'NO'}</td>
         <td>${p.decryptStatus}</td>
         <td class="small">${p.decryptedPreview || '-'}</td>
       `;
@@ -31,16 +46,25 @@
 
   function apply(state) {
     if (!state) return;
-    setText('connStatus', state.connected ? 'CONNECTED' : 'DISCONNECTED');
-    setText('authStatus', state.authenticated ? 'OK' : 'PENDING');
+    setBadge('connStatus', state.connected, 'CONNECTED', 'DISCONNECTED', 'bg-green', 'bg-red');
+    setBadge('authStatus', state.authenticated, 'OK', 'PENDING', 'bg-green', 'bg-amber');
     setText('tlsStatus', state.tlsWss || 'WSS');
-    setText('leakedKeyMode', state.demoLeakedKeyMode ? 'ON' : 'OFF');
-    setText('attackerDemoEnabled', state.settings?.attackerDemoEnabled ? 'ON' : 'OFF');
-    setText('coverStatus', state.settings?.coverTrafficEnabled ? 'ON' : 'OFF');
+    
+    /* Update Tactical WSS Indicator */
+    const wssIndicator = byId('wssStatusAttacker');
+    if (wssIndicator) {
+      wssIndicator.className = `wss-tag ${state.connected ? 'status-online' : 'status-offline'}`;
+      wssIndicator.textContent = state.connected ? 'SRV: CONNECTED' : 'SRV: DISCONNECTED';
+    }
+
+    setBadge('leakedKeyMode', state.demoLeakedKeyMode, 'ON', 'OFF', 'bg-amber', 'bg-green');
+    setBadge('attackerDemoEnabled', state.settings?.attackerDemoEnabled, 'ON', 'OFF', 'bg-red', 'bg-green');
+    setBadge('coverStatus', state.settings?.coverTrafficEnabled, 'ON', 'OFF', 'bg-green', 'bg-red');
+    
     setText('coverInterval', Number(state.settings?.coverTrafficIntervalMs || 1500));
     setText('coverJitter', Number(state.settings?.coverTrafficJitterMs || 1000));
     setText('coverRatio', Number(state.settings?.coverTrafficRatio || 3));
-    setText('confidence', state.confidence || '-');
+    setConfidenceBadge('confidence', state.confidence);
     setText('totalPackets', Number(state.stats?.totalPackets || 0));
     setText('realPackets', Number(state.stats?.realPackets || 0));
     setText('coverPackets', Number(state.stats?.coverPackets || 0));
@@ -55,6 +79,12 @@
 
     renderPackets(state.packets || []);
   }
+
+  /* Live Clock */
+  setInterval(() => {
+    const el = byId('liveClock');
+    if (el) el.textContent = new Date().toLocaleTimeString();
+  }, 1000);
 
   const es = new EventSource('/events');
   es.onmessage = (ev) => {

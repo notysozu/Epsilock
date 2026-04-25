@@ -17,20 +17,27 @@
     setText('attackerDemoEnabledLabel', attackerEnabled ? 'ON' : 'OFF');
     setText('coverTrafficEnabledLabel', enabled ? 'ON' : 'OFF');
     setText('coverTrafficModeLabel', enabled ? 'MIXED / NOISY MODE ACTIVE' : 'CLEAN / ISOLATABLE MODE (COVER OFF)');
-    setText('coverTrafficIntervalMsLabel', Number(settings.coverTrafficIntervalMs || 1500));
-    setText('coverTrafficJitterMsLabel', Number(settings.coverTrafficJitterMs || 1000));
-    setText('coverTrafficRatioLabel', Number(settings.coverTrafficRatio || 3));
+    
+    // Sliders and Badges
+    const interval = Number(settings.coverTrafficIntervalMs || 1500);
+    const jitter = Number(settings.coverTrafficJitterMs || 1000);
+    const ratio = Number(settings.coverTrafficRatio || 3);
+    
+    setText('val_interval', `${interval} ms`);
+    setText('val_jitter', `${jitter} ms`);
+    setText('val_ratio', `1 : ${ratio}`);
 
     const attackerDemoInput = document.getElementById('attackerDemoEnabled');
     const enabledInput = document.getElementById('coverTrafficEnabled');
     const intervalInput = document.getElementById('coverTrafficIntervalMs');
     const jitterInput = document.getElementById('coverTrafficJitterMs');
     const ratioInput = document.getElementById('coverTrafficRatio');
+    
     if (attackerDemoInput) attackerDemoInput.value = attackerEnabled ? 'true' : 'false';
     if (enabledInput) enabledInput.value = enabled ? 'true' : 'false';
-    if (intervalInput) intervalInput.value = Number(settings.coverTrafficIntervalMs || 1500);
-    if (jitterInput) jitterInput.value = Number(settings.coverTrafficJitterMs || 1000);
-    if (ratioInput) ratioInput.value = Number(settings.coverTrafficRatio || 3);
+    if (intervalInput) intervalInput.value = interval;
+    if (jitterInput) jitterInput.value = jitter;
+    if (ratioInput) ratioInput.value = ratio;
   }
 
   async function fetchSecuritySettings() {
@@ -79,6 +86,19 @@
   const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
   const url = `${wsProtocol}//${location.host}/ws?client=admin&token=${encodeURIComponent(token)}`;
   const ws = new WebSocket(url);
+  const globalStatus = document.getElementById('globalWssStatus');
+
+  function updateGlobalStatus(online) {
+    if (!globalStatus) return;
+    globalStatus.className = `wss-tag ${online ? 'status-online' : 'status-offline'}`;
+    globalStatus.textContent = online ? 'WSS: CONNECTED' : 'WSS: DISCONNECTED';
+  }
+
+  /* Live Clock */
+  setInterval(() => {
+    const el = document.getElementById('liveClock');
+    if (el) el.textContent = new Date().toLocaleTimeString();
+  }, 1000);
 
   let audioCtx;
   let unlocked = false;
@@ -117,6 +137,9 @@
     alerts.prepend(line);
   }
 
+  ws.addEventListener('open', () => updateGlobalStatus(true));
+  ws.addEventListener('close', () => updateGlobalStatus(false));
+
   ws.addEventListener('message', (ev) => {
     let msg;
     try {
@@ -144,5 +167,27 @@
       if (saveStatus) saveStatus.textContent = `Updated live at ${new Date().toLocaleTimeString()}`;
       log('[SECURITY] security settings updated');
     }
+  });
+
+  /* Decryption Animation */
+  function decryptEffect(el) {
+    const original = el.textContent;
+    if (!original || !/[0-9]/.test(original)) return;
+    const chars = "0123456789ABCDEF!@#$%^&*";
+    let iterations = 0;
+    
+    const interval = setInterval(() => {
+      el.textContent = original.split("").map((char, index) => {
+        if (index < iterations) return original[index];
+        return chars[Math.floor(Math.random() * chars.length)];
+      }).join("");
+      
+      if (iterations >= original.length) clearInterval(interval);
+      iterations += 1/3;
+    }, 30);
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.mini-stat .value').forEach(decryptEffect);
   });
 })();

@@ -1,39 +1,61 @@
-<h1>Rooms</h1>
-<section class="card">
-  <form method="post" action="/admin/rooms/create" class="row">
-    <input name="name" placeholder="room name" required>
-    <button type="submit">Create Room</button>
-  </form>
-</section>
-<section class="grid two">
-  <% rooms.forEach((r) => { %>
-    <article class="card">
-      <h3><%= r.name %></h3>
-      <p><code><%= r.roomId %></code></p>
-      <p>Status: <%= r.status %> | Frozen: <%= r.frozen ? 'yes' : 'no' %></p>
-      <% if (r.frozen) { %>
-        <form method="post" action="/admin/rooms/<%= r.roomId %>/unfreeze"><button type="submit">Unfreeze</button></form>
-      <% } else { %>
-        <form method="post" action="/admin/rooms/<%= r.roomId %>/freeze"><button type="submit">Freeze</button></form>
-      <% } %>
-      <form method="post" action="/admin/rooms/<%= r.roomId %>/add-user" class="row compact">
-        <select name="userId" required>
-          <option value="">select user</option>
-          <% users.forEach((u) => { %>
-            <option value="<%= u._id %>"><%= u.username %></option>
-          <% }) %>
-        </select>
-        <button type="submit">Add</button>
-      </form>
-      <div class="mt8">
-        <% (r.participantUserIds || []).forEach((uid) => { %>
-          <form method="post" action="/admin/rooms/<%= r.roomId %>/remove-user" class="row compact">
-            <input type="hidden" name="userId" value="<%= uid %>">
-            <code><%= uid %></code>
-            <button type="submit">Remove</button>
-          </form>
-        <% }) %>
-      </div>
-    </article>
-  <% }) %>
-</section>
+<div class="rooms-manager-root">
+  <section class="card mb-4 cascading-item">
+    <h2 class="mb-4">Internal Channel Creation</h2>
+    <form method="post" action="/admin/rooms/create" class="row">
+      <input name="name" placeholder="Channel Display Name" required>
+      <button type="submit" class="primary-btn">CREATE CHANNEL</button>
+    </div>
+  </section>
+
+  <section class="grid two">
+    <% rooms.forEach((r) => { %>
+      <article class="card cascading-item">
+        <div class="row justify-between mb-2">
+          <h3 class="nm"><%= r.name || 'Unnamed Channel' %></h3>
+          <span class="badge <%= r.frozen ? 'bg-red' : 'bg-green' %>">
+            <%= r.frozen ? 'FROZEN' : 'ACTIVE' %>
+          </span>
+        </div>
+        <p class="small text-muted mb-4">ID: <%= r.roomId %></p>
+
+        <div class="status-grid stack mb-4">
+          <div class="status-row">
+            <span>Security Override</span>
+            <form method="post" action="/admin/rooms/<%= r.roomId %>/<%= r.frozen ? 'unfreeze' : 'freeze' %>">
+              <button type="submit" class="<%= r.frozen ? 'bg-green' : 'bg-red' %> small-btn">
+                <%= r.frozen ? 'UNFREEZE' : 'FREEZE' %>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <h4 class="small mb-2">PARTICIPANTS</h4>
+        <div class="participant-list mb-4">
+          <% if ((r.participantUserIds || []).length === 0) { %>
+            <p class="muted small">No operators assigned.</p>
+          <% } else { %>
+            <% (r.participantUserIds || []).forEach((uid) => { %>
+              <div class="participant-row">
+                <span class="username-tag"><%= typeof userMap !== 'undefined' ? userMap[String(uid)] : uid %></span>
+                <form method="post" action="/admin/rooms/<%= r.roomId %>/remove-user" style="margin:0">
+                  <input type="hidden" name="userId" value="<%= uid %>">
+                  <button type="submit" class="text-red-btn">REMOVE</button>
+                </form>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+
+        <form method="post" action="/admin/rooms/<%= r.roomId %>/add-user" class="row">
+          <select name="userId" required style="flex:1">
+            <option value="">Select Operator</option>
+            <% users.forEach((u) => { %>
+              <option value="<%= u._id %>"><%= u.username %></option>
+            <% }) %>
+          </select>
+          <button type="submit">ADD</button>
+        </form>
+      </article>
+    <% }) %>
+  </section>
+</div>

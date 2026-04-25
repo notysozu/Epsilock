@@ -1,33 +1,62 @@
-<h1>User Node Chat</h1>
-<div class="card">
-  <p><strong>User:</strong> <%= user.username %></p>
-  <p><strong>Node:</strong> <code id="nodeId"><%= nodeId %></code></p>
-  <p id="connectionStatus" class="muted">Connecting to secure WebSocket...</p>
-  <div id="statusRows" class="status"></div>
-</div>
+<div class="tactical-grid cascading-item">
+  <!-- Operation Control Widget -->
+  <aside class="ops-control-widget">
+    <div class="widget-header">
+      <i class="fa-solid fa-gears" id="gearsIcon"></i>
+      <h3>Chat Control</h3>
+      <button id="toggleSidebarBtn" class="toggle-sidebar-btn"><i class="fa-solid fa-chevron-left"></i></button>
+    </div>
+    
+    <div class="control-section">
+      <label>Connection Status</label>
+      <div id="connectionStatus" class="status-box">SEARCHING...</div>
+    </div>
 
-<div class="card">
-  <label>Select room</label>
-  <select id="roomSelect">
-    <option value="">Choose room</option>
-    <% rooms.forEach((r) => { %>
-      <option value="<%= r.roomId %>"><%= r.name %> (<%= r.roomId %>)</option>
-    <% }) %>
-  </select>
-  <button id="joinRoomButton" disabled>Join Room</button>
-</div>
+    <div class="control-section">
+      <label>Select Room</label>
+      <div class="select-wrapper">
+        <select id="roomSelect">
+          <option value="">-- No Room Selected --</option>
+          <% rooms.forEach((r) => { %>
+            <option value="<%= r.roomId %>"><%= r.name || r.roomId %></option>
+          <% }) %>
+        </select>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <button id="joinRoomButton" class="action-btn-glow" disabled>Join Channel</button>
+    </div>
 
-<div class="card">
-  <div class="row">
-    <input id="toUserId" placeholder="toUserId (optional for room broadcast)">
-    <input id="messageInput" placeholder="Enter message" disabled>
-    <button id="sendButton" disabled>Send</button>
-  </div>
-</div>
+    <div class="control-section mt-auto">
+      <div class="security-readout">
+        <p>SECURE SESSION ACTIVE</p>
+        <p>AES-256 ENCRYPTION</p>
+        <p>HMAC INTEGRITY</p>
+      </div>
+    </div>
+  </aside>
 
-<div class="card">
-  <h3>Incoming Messages</h3>
-  <div id="chatLog" class="chat-log"></div>
+  <!-- Communication Widget -->
+  <section class="comm-thread-widget">
+    <div class="widget-header">
+      <i class="fa-solid fa-comments"></i>
+      <h3>Message Stream</h3>
+    </div>
+    
+    <div class="chat-thread logbox terminal-theme-chat" id="chatLog">
+      <div class="system-msg">System ready. Establish a channel connection to begin.</div>
+    </div>
+
+    <div class="chat-input-area">
+      <div class="input-hub">
+        <input id="toUserId" placeholder="To (Optional)">
+        <input id="messageInput" placeholder="Enter message..." disabled>
+        <button id="sendButton" class="send-trigger" disabled>
+          <span>SEND</span>
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </section>
 </div>
 
 <script>

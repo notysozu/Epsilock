@@ -15,6 +15,15 @@
   const fileSendBtn = document.getElementById('fileSendBtn');
   const chatLog = document.getElementById('chatLog');
 
+  const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+  const tacticalGrid = document.querySelector('.tactical-grid');
+  
+  if (toggleSidebarBtn && tacticalGrid) {
+    toggleSidebarBtn.addEventListener('click', () => {
+      tacticalGrid.classList.toggle('sidebar-collapsed');
+    });
+  }
+
   const renderedPacketIds = new Set();
 
   const state = {
@@ -58,6 +67,13 @@
       statusText.textContent = ready ? 'Secure room session active.' : buildStatusMessage();
     }
 
+    /* Update Tactical WSS Indicator */
+    const wssIndicator = document.getElementById('wssStatusChat');
+    if (wssIndicator) {
+      wssIndicator.className = `wss-tag ${state.wsConnected ? 'status-online' : 'status-offline'}`;
+      wssIndicator.textContent = state.wsConnected ? 'WSS: CONNECTED' : 'WSS: DISCONNECTED';
+    }
+
     if (statusRows) {
       statusRows.innerHTML = '';
       const lines = [
@@ -72,6 +88,12 @@
       });
     }
   }
+
+  /* Live Clock */
+  setInterval(() => {
+    const el = document.getElementById('liveClock');
+    if (el) el.textContent = new Date().toLocaleTimeString();
+  }, 1000);
 
   function resetConnectionStateKeepRoomSelection() {
     state.wsConnected = false;
@@ -127,6 +149,7 @@
   state.roomJoined = false;
   state.joiningRoom = false;
   state.selectedRoomId = roomIdEl?.value || boot.status?.selectedRoomId || null;
+  if (boot.status) applyNodeStatus(boot.status);
   updateChatControls();
 
   const es = new EventSource('/events');
@@ -228,6 +251,10 @@
     state.roomJoined = true;
     updateChatControls();
     pushLog(`joined room ${state.selectedRoomId}`);
+    
+    if (tacticalGrid) {
+      tacticalGrid.classList.add('sidebar-collapsed');
+    }
   });
 
   sendBtn?.addEventListener('click', async () => {
